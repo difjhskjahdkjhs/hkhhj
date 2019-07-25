@@ -1,0 +1,14 @@
+<div>
+    <div class="uk-card-small uk-card-default uk-card-body bg-white uk-card-rounded">
+        <h4 class=" uk-margin-remove-bottom item-names cus-purple cus-bold"><%= item.title %></h4>
+        <img class="uk-margin-small-top uk-margin-remove-bottom" src="<%= item.image %>" style="max-height: 150px" ><br>
+        <div class="uk-flex uk-flex-between uk-flex-middle">
+            <div class="uk-flex-auto"><h4 class="uk-margin-small-top uk-margin-small-bottom cus-purple cus-bold">£<%= (item.sellingPrice * (1+parseFloat(platformFee))).toFixed(2) %></h4></div>
+            <div>
+                <a href="#" class="" onclick="sendAjaxQuery(event, '/cart/add/<%=supplier._id%>/<%=item._id%>')">
+                    <i class="fas fa-cart-plus fa-lg"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

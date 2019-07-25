@@ -1,0 +1,61 @@
+<div class="uk-card-small uk-card-default uk-card-body bg-white uk-card-rounded">
+<% if(item.typeOfItem === "pack") {%>
+    <div class="uk-card-badge-custom uk-label-green">
+        <a uk-toggle="target: #toggle-usage-<%=item._id%>">Pack</a>
+    </div>
+    <h4 class="uk-margin-remove-top uk-margin-remove-bottom item-names cus-purple cus-bold"><%= item.title %></h4>
+
+    <div style="position: relative" >
+        <div id="toggle-usage-<%=item._id%>" class="pack-info-toggle"  hidden>
+        <% item.packItems.forEach(function (product) {%>
+            <div><%= product %></div>
+        <% }) %>
+        </div>
+        <img class="uk-margin-small-top uk-margin-remove-bottom" src="<%= item.image %>" style="max-height: 150px" ><br>
+    </div>
+<% } else {%>
+    <h4 class=" uk-margin-remove-bottom item-names cus-purple cus-bold"><%= item.title %></h4>
+    <img class="uk-margin-small-top uk-margin-remove-bottom" src="<%= item.image %>" style="max-height: 150px" ><br>
+<% }%>
+    <p class="uk-margin-small-top uk-margin-small-bottom">Product Price: £<%= item.sellingPrice.toFixed(2) %><br>
+        Selling Price: £<%= (item.sellingPrice * (1+parseFloat(platformFee))).toFixed(2) %><br>
+        <%= item.inStock == 0 ? 'Out of stock' : 'Stock: ' + item.inStock %><br>
+        <a href="/supplier/<%= item._id %>/edit">Edit product</a><br>
+        <a href="#modal-<%= item._id %>" uk-toggle>Restock product</a><br>
+        <!-- This is a button toggling the modal with the default close button -->
+        <!--<button class="uk-button uk-button-default uk-margin-small-right" type="button" uk-toggle="target: #modal-id-<%=item._id%>">Delete product</button>-->
+        <a href="#modal-id-<%=item._id%>" uk-toggle>Delete Product</a>
+    </p>
+    <!-- This is the modal with the default close button -->
+    <div id="modal-id-<%=item._id%>" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <h2 class="uk-modal-title">Are you sure?</h2>
+            <p>
+                This cant be undone!
+            </p>
+            <p>
+                <a href="supplier/<%= item._id %>/delete" class="uk-button uk-button-danger">Delete product</a>
+            </p>
+        </div>
+    </div>
+
+
+    <div id="modal-<%= item._id %>" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Restock: <%= item.title %></h2>
+            <p>Current stock: <%= item.inStock == 0 ? 'Out of stock' : item.inStock+''%></p>
+
+            <form action='/supplier/restock' method='post'>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="title">Amount In Stock</label>
+                    <input type="hidden" name="productID" value="<%= item._id %>">
+                    <input class="uk-input" type="text" placeholder="Number of items to add" name="restockAmount" required="required">
+                </div>
+                <p class="uk-text-right">
+                    <input class="uk-button uk-button-primary" type="submit" value="Restock">
+                </p>
+            </form>
+        </div>
+    </div>
+</div>

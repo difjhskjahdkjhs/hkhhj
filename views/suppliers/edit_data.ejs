@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+
+    <script src="/javascripts/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <div class="uk-section uk-section-xsmall ">
+        <div class="uk-container">
+            <% include ../partials/supplier_navbar %>
+
+            <div class="uk-child-width-expand@s" uk-grid>
+                <div class="uk-width-1-1@s">
+
+                    <dl class="uk-description-list">
+                        <dt>Name:</dt>
+                        <dd><%= supplier.name %></dd>
+                        <dt>Address:</dt>
+                        <dd><%= supplier.address.houseAndStreet %>, <%= supplier.address.postcode %>, <%= supplier.address.city %> <%= ","+supplier.address.county || "" %></dd>
+                        <dt>Telephone Number:</dt>
+                        <dd><%= supplier.telephoneNumber %></dd>
+                        <dt>Bank Account:</dt>
+                        <dd><%= supplier.bankDetails.accountNumber %></dd>
+                        <dt>Sort Code:</dt>
+                        <dd><%= supplier.bankDetails.sortCode %></dd>
+                    </dl>
+                    <form class="uk-form-stacked my-class" hidden method="post" action="/supplier/editData">
+
+                        <!--<div class="uk-margin">-->
+                            <!--<label class="uk-form-label" for="form-stacked-text">Account Number</label>-->
+                            <!--<div class="uk-form-controls">-->
+                                <!--<input class="uk-input" id="form-stacked-text" type="text" placeholder="Account Number" name="accountNumber">-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <!--<div class="uk-margin">-->
+                            <!--<label class="uk-form-label" for="form-stacked-text">Sort Code</label>-->
+                            <!--<div class="uk-form-controls">-->
+                                <!--<input class="uk-input" id="form-stacked-text" type="text" placeholder="6 Digits, No Hyphens" name="sortCode">-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">Telephone Number</label>
+                            <div class="uk-form-controls">
+                                <input class="uk-input" type="text" placeholder="07911 123456" name="phoneNumber">
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">Store Name</label>
+                            <div class="uk-form-controls">
+                                <input class="uk-input" type="text" placeholder="Kwik-E-Market" name="storeName">
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <button type="submit" class="uk-button uk-button-primary">
+                        </div>
+
+                    </form>
+                    <button type="button" uk-toggle="target: .my-class" class="uk-button uk-button-default">Edit Profile</button>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

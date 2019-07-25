@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+
+<head>
+    <% include partials/head_content %>
+    <script src="/javascripts/index.js"></script>
+    <!-- includes the Braintree JS client SDK -->
+    <script src="https://js.braintreegateway.com/web/dropin/1.11.0/js/dropin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.2.1/moment.min.js" crossorigin="anonymous"></script>
+    <script src="https://checkout.stripe.com/checkout.js"></script>
+</head>
+
+<body>
+
+<div class="uk-offcanvas-content">
+    <% include partials/navbar %>
+    <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+        <% if (typeof cart !== "undefined") { %>
+        <div class="uk-card uk-card-default uk-card-small uk-card-body">
+            <h3 class="uk-card-title">Buying from <strong><%= supplier.name %></strong></h3>
+            <p>
+                Address: <%= supplier.address.houseAndStreet%>, <%= supplier.address.postcode%>, <%= supplier.address.city%>
+            </p>
+        </div>
+
+        <h3><span class="uk-icon" uk-icon="ratio: 1.2; icon: cart"></span> Shopping Cart</h3>
+
+        <table class="uk-table uk-table-striped">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <% var total = 0 ; var discountApplied = 0; var deliveryDiscount = 0;%>
+            <% cart.forEach(function(item) { %>
+            <% var subTotal = parseFloat(item.qty * item.price).toFixed(2); total += parseFloat(subTotal); %>
+            <tr>
+                <td><img data-src="/<%= item.image %>" width="60" height="60" alt="<%= item.title %>" uk-img></td>
+                <td><%= item.qty %> x <%= item.title %><BR>
+                    <a href="/cart/update/<%= item.title %>?action=add">+</a>&nbsp;
+                    <a href="/cart/update/<%= item.title %>?action=remove">-</a>&nbsp;
+                    <a href="/cart/update/<%= item.title %>?action=clear">Clear</a>&nbsp;</td>
+
+                <td><%= item.price %></td>
+                <td><%= subTotal %></td>
+            </tr>
+            <% }) %>
+            <% if (typeof coupon !== "undefined") {
+                discountApplied = total * (coupon[0].discountAmount/100);
+                deliveryDiscount = deliveryFee * (coupon[0].deliveryDiscountAmount/100)
+            }%>
+            <%if (discountApplied > 0) {%>
+            <tr>
+                <td colspan="6" align="right">Discount <%=coupon[0].discountAmount%>%: - £<%= discountApplied %></td>
+            </tr>
+            <%}%>
+            <%if (deliveryDiscount > 0) {%>
+            <tr>
+                <td colspan="6" align="right">Free delivery!</td>
+            </tr>
+            <% } else { %>
+            <tr>
+                <td colspan="6" align="right">Delivery fee: + £<%= deliveryFee - deliveryDiscount %></td>
+            </tr>
+            <%}%>
+
+            <tr>
+                <td colspan="6" align="right">Total: £<%= ((total - discountApplied)+ parseFloat(deliveryFee) - deliveryDiscount).toFixed(2) %></td>
+            </tr>
+            <tr>
+                <td colspan="5" align="right"><a href="/cart/clear">Clear Cart</a></td>
+                <!--<td colspan="5" align="right"><a href="/cart/clear">Buy Now</a></td>-->
+
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><span class="uk-icon" uk-icon="ratio: 1.2; icon: happy"></span> Apply a Coupon</h3>
+
+        <% if (typeof coupon !== "undefined") {%>
+
+        <div class="uk-alert-primary" uk-alert>
+            <p>You are currently using <%= coupon[0].name %>. <a href="/cart/clearCoupon">Remove</a> </p>
+        </div>
+        <%} else { %>
+        <form action="/cart/coupon" method="POST">
+            <input type="text" class="uk-input uk-form-width-medium" name="couponCode">
+            <button class="uk-button uk-button-primary" type="submit" >Apply</button>
+        </form>
+        <% } %>
+
+
+        <!-------- DELIVERY -------->
+        <h3><span class="uk-icon" uk-icon="ratio: 1.2; icon:home"></span> Delivery Address</h3>
+        <p>This can be changed from your <a href="/users"><span class="uk-icon" uk-icon="user"></span> profile</a>.</p>
+
+        <form class="serializeme">
+            <% var validAddress = false %>
+            <%for(var i = 0; i < user.deliveryAddress.length; i++) {%>
+            <%var distance = pointsDistance(user.deliveryAddress[i].location.coordinates[1], user.deliveryAddress[i].location.coordinates[0], supplier.address.location.coordinates[1], supplier.address.location.coordinates[0]).toFixed(2)%>
+            <% if (distance < 3) {%>
+            <div>
+                <label>
+                    <input class="uk-radio" type="radio" name="deliveryAddress" value="<%=i%>" <%= (validAddress == false) ? 'checked' : ''  %> required="required">
+                    Use <%= user.deliveryAddress[i].houseAndStreet %>, <%= user.deliveryAddress[i].postcode %>, <%= user.deliveryAddress[i].city %>.
+                    <%=distance%>km
+                </label>
+            </div>
+            <% validAddress = true %>
+
+            <%}%>
+
+            <%}%>
+        </form>
+
+        <h3><span class="uk-icon" uk-icon="ratio: 1.2; icon: settings"></span> Delivery Time</h3>
+        <select id="timetable" class="uk-select uk-form-width-medium">
+            <option selected="selected">ASAP</option>
+        </select>
+
+        <% if (!validAddress) {%>
+        <p>You need a valid address within the shop's delivery range.</p>
+        <%} else {%>
+        <h3><span class="uk-icon" uk-icon="ratio: 1.2; icon:credit-card"></span> Submit Your Payment</h3>
+        <div id="dropin-container"></div>
+        <div id="dropin-wrapper">
+            <div id="checkout-message"></div>
+            <div id="dropin-container"></div>
+            <button id="submit-button">Submit payment</button>
+        </div>
+        <script>
+            var button = document.querySelector('#submit-button');
+
+            braintree.dropin.create({
+                // Insert your tokenization key here
+                authorization: '<%= userToken %>',
+                container: '#dropin-container'
+            }, function (createErr, instance) {
+                button.addEventListener('click', function () {
+                    instance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
+                        // When the user clicks on the 'Submit payment' button this code will send the
+                        // encrypted payment information in a variable called a payment method nonce
+
+                        var formArray = $('.serializeme').serializeArray();
+                        var userData = {};
+                        for (index in formArray) {
+                            userData[formArray[index].name] = formArray[index].value;
+                        }
+                        console.log(userData);
+                        if (!userData.deliveryAddress) return alert("You must select a delivery address");
+                        userData = JSON.stringify(userData)
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/cart/checkout',
+                            dataType: 'json',
+                            data: {'paymentMethodNonce': payload.nonce, 'userData': userData}
+                        }).done(function(result) {
+                            // Tear down the Drop-in UI
+                            instance.teardown(function (teardownErr) {
+                                if (teardownErr) {
+                                    console.error('Could not tear down Drop-in UI!');
+                                } else {
+                                    console.info('Drop-in UI has been torn down!');
+                                    // Remove the 'Submit payment' button
+                                    $('#submit-button').remove();
+                                }
+                            });
+
+                            if (result.success) {
+                                $('#checkout-message').html('<h1>Success</h1><p>Your Drop-in UI is working! Check your <a href="https://sandbox.braintreegateway.com/login">sandbox Control Panel</a> for your test transactions.</p><p>Refresh to try another transaction.</p>');
+                                window.location.replace('checkout/' + result.transaction.id);
+
+                            } else {
+                                console.log(result);
+                                $('#checkout-message').html('<h1>Error</h1><p>Check your console.</p>');
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
+
+<hr>
+
+        <div id="shop">
+            <button id="buttonCheckout">Checkout</button>
+        </div>
+        <% } %>
+
+        <% } else { %>
+        <h4>Your cart is empty</h4>
+        <% } %>
+
+    </div>
+</div>
+
+<%
+function degreesToRadians(degrees) {
+    return degrees * Math.PI / 180;
+}
+
+function pointsDistance(lat1, lon1, lat2, lon2) {
+    var earthRadiusKm = 6371;
+
+    var dLat = degreesToRadians(lat2-lat1);
+    var dLon = degreesToRadians(lon2-lon1);
+
+    lat1 = degreesToRadians(lat1);
+    lat2 = degreesToRadians(lat2);
+
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return earthRadiusKm * c;
+}
+%>
+<script type="text/javascript">
+    var now = moment().startOf('hour');
+    var all_hours=['5pm', '5:30pm', '6pm', '6:30pm', '7pm', '7:30pm', '8pm', '8:30pm', '9pm', '9:30pm', '10pm', '10:30pm', '11pm', '11:30pm', '12pm'];
+    var remaining_hours;
+    var start_time = 17;
+    // if it is earlier than 5pm (17H)
+
+    if (parseInt(now.format("H")) < start_time) {
+        console.log("before");
+        remaining_hours = all_hours;
+    } else {
+        var currentTime = parseInt(now.format("H")) - start_time;
+        remaining_hours = all_hours.slice((currentTime + 1) * 2 , all_hours.length)
+    }
+    remaining_hours.forEach(function (value) {
+        $("#timetable").append("<option value='"+value+"'>"+value+"</option>");
+    })
+
+    var checkoutHandler = StripeCheckout.configure({
+        key: "pk_test_Ck63PHchAHehRYlfnPO7KnvR",
+        locale: "auto"
+    });
+
+    function handleToken(token) {
+        fetch("/cart/charge", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(token)
+        })
+        .then(function (output) {
+            if (output.status === "succeeded")
+                document.getElementById("shop").innerHTML = "<p>Purchase complete!</p>";
+        })
+    }
+
+    var button = document.getElementById("buttonCheckout");
+    button.addEventListener("click", function(ev) {
+        checkoutHandler.open({
+            name: "Sample Store",
+            description: "Example Purchase",
+            token: handleToken
+        });
+    });
+
+
+
+</script>
+</body>
+</html>

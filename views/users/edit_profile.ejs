@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <div class="uk-section uk-section-xsmall ">
+
+        <div class="uk-container">
+            <div class="uk-child-width-expand@s" uk-grid>
+                <div class="uk-width-1-5@s">
+                    <% include ../partials/user_navbar %>
+                </div>
+                <div class="uk-width-4-5@s">
+                    <form class="uk-form-stacked" method="post" action="/users/edit/password">
+
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">Current Password</label>
+                            <div class="uk-form-controls">
+                                <input class="uk-input" id="form-stacked-text" type="password" placeholder="********" name="oldPassword" required="required">
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">New Password</label>
+                            <div class="uk-form-controls">
+                                <input class="uk-input" id="form-stacked-text2" type="password" placeholder="********" name="newPassword1" required="required">
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">Repeat New Password</label>
+                            <div class="uk-form-controls">
+                                <input class="uk-input" id="form-stacked-text3" type="password" placeholder="********" name="newPassword2" required="required">
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <button type="submit" class="uk-button uk-button-primary" value="Submit">Submit</button>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</body>
+</html>

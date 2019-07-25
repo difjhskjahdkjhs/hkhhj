@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+
+    <%
+    function degreesToRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    function pointsDistance(lat1, lon1, lat2, lon2) {
+        var earthRadiusKm = 6371;
+
+        var dLat = degreesToRadians(lat2-lat1);
+        var dLon = degreesToRadians(lon2-lon1);
+
+        lat1 = degreesToRadians(lat1);
+        lat2 = degreesToRadians(lat2);
+
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return earthRadiusKm * c;
+    }
+    %>
+
+    <style type="text/css">
+        .map {
+            width: 100%;
+            height: 125px;
+        }
+    </style>
+    <script>
+        var map;
+    </script>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <% include ../partials/driver_navbar.ejs %>
+
+    <div class="uk-section uk-section-xsmall ">
+        <button class="uk-button uk-button-default uk-button-small" type="button" uk-toggle="target: #offcanvas-nav-primary"><span class="uk-margin-small-right" uk-icon="menu"></span>Navigation</button>
+
+    <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+        <h1 class="uk-heading-divider">Current Jobs</h1>
+        <a href="#" onclick="window.history.go(-1); return false;"><span class="uk-icon-button" uk-icon="chevron-left"></span> Return</a>
+
+    </div>
+        <!--<div class="ui container">-->
+            <% driver %>
+        <!--</div>-->
+    <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+        <div class="uk-child-width-1-2@s" uk-grid>
+            <% driver.currentJobs.forEach(function(item) {%>
+            <div>
+
+
+                <div id="<%= item._id %>" class="maps" data-gps-from="<%= item.supplierID.address.location.coordinates[1]%>,<%=item.supplierID.address.location.coordinates[0]%>" data-gps-to="<%= item.deliveryAddress.location.coordinates[1]%>,<%=item.deliveryAddress.location.coordinates[0]%>" style="height:150px"></div>
+                <div class="uk-card uk-card-small uk-card-default">
+                    <div class="uk-card-body">
+                        <div class="uk-card-badge uk-label">
+                            <%= pointsDistance(item.deliveryAddress.location.coordinates[1], item.deliveryAddress.location.coordinates[0], item.supplierID.address.location.coordinates[1], item.supplierID.address.location.coordinates[0]).toFixed(2) %>km
+                        </div>
+                        <dl class="uk-description-list">
+                            <dt>PickupID</dt>
+                            <dd>
+                                <%= item.storeIdentifier %>
+                            </dd>
+
+                            <dt>Supplier</dt>
+                            <dd>
+                                <%= item.supplierID.name %>
+                                <%= item.supplierID.address.houseAndStreet %>, <%= item.supplierID.address.postcode %>
+                            </dd>
+
+                            <dt>Delivery</dt>
+                            <dd>
+                                <%= item.deliveryAddress.houseAndStreet %>, <%= item.deliveryAddress.postcode %>
+                            </dd>
+
+                            <dt>Items</dt>
+                            <dd>
+                                <% for(i=0; i<item.products.length; i++) { %>
+
+                                    <div class="uk-grid-small" uk-grid>
+                                        <div class="uk-width-expand" uk-leader><%= item.products[i].title%></div>
+                                        <div><%= item.products[i].qty%></div>
+                                    </div>
+                                <%}%>
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="uk-card-footer">
+                        <ul class="uk-iconnav">
+                            <li hidden>
+                                <a uk-icon="icon: plus" href="http://maps.google.com/maps?saddr=<%= item.supplierID.address.houseAndStreet %>+<%= item.supplierID.address.postcode %>+<%= item.supplierID.address.city %>&daddr=<%= item.deliveryAddress.houseAndStreet %>+<%= item.deliveryAddress.postcode %>+<%= item.deliveryAddress.city %>">View In Maps</a>
+                                <a uk-icon="icon: play" href="http://maps.apple.com/?saddr=<%= item.supplierID.address.houseAndStreet %>+<%= item.supplierID.address.postcode %>&daddr=<%= item.deliveryAddress.houseAndStreet %>+<%= item.deliveryAddress.postcode %>+<%= item.deliveryAddress.city %>&dirflg=d&t=h">Start Navigation </a>
+                                <a uk-icon="icon: play" href="google.navigation:q=<%= item.deliveryAddress.houseAndStreet %>+<%= item.deliveryAddress.postcode %>+<%= item.deliveryAddress.city %>">Start Navigation </a>
+                            <a uk-icon="icon: play" href="http://maps.google.com/maps?addr=Current+Location&daddr=<%= item.deliveryAddress.houseAndStreet %>+<%= item.deliveryAddress.postcode %>+<%= item.deliveryAddress.city %>">Go to drop-off</a></li>
+
+                            <li id="start-navigation">
+                                <a uk-icon="icon: play" href="#">Start Navigation</a>
+                                <div uk-dropdown="mode: click">
+                                    <ul class="uk-nav uk-dropdown-nav">
+                                        <li><a uk-icon="icon: play" href="http://maps.google.com/maps?daddr=<%= item.supplierID.address.houseAndStreet %>+<%= item.supplierID.address.postcode %>+<%= item.supplierID.address.city %>">Go to supplier</a></li>
+                                        <li><a uk-icon="icon: play" href="http://maps.apple.com/?daddr=<%= item.deliveryAddress.houseAndStreet %>+<%= item.deliveryAddress.postcode %>+<%= item.deliveryAddress.city %>">Go to dropoff</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li>
+                                <a uk-icon="icon: check" href="#job-<%=item._id%>" uk-toggle>Confirm  </a>
+                            </li>
+                            <li>
+                                <a href="tel:<%=item.buyerID.telephone1%>" uk-icon="icon: receiver">Call Client </a>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- This is the modal -->
+            <div id="job-<%=item._id%>" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <h2 class="uk-modal-title">Attention!</h2>
+                    <p>You must verify the client's details and age.</p>
+
+                    <p>Name: <%=item.buyerID.name%> <br>
+                    Surname: <%=item.buyerID.surname%><br>
+                    DoB: <%=moment(item.buyerID.DoB).format(shortDateFormat)%></p>
+                    <div>
+                        <button class="uk-modal-close-outside" type="button" uk-close></button>
+
+                        <button class="uk-button uk-button-default" type="button" uk-toggle="target: #toggle-<%=item._id%>">Verify Age</button>
+                        <p>
+                            <form method="POST" action="current/confirmDelivery" id="toggle-<%=item._id%>" hidden>
+                                <input type="hidden" name="salesID" value="<%=item._id%>">
+                                <button class="uk-button uk-button-primary" type="submit">Confirm Delivery</button>
+                            </form>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+            <%});%>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+    var LatLngBounds = []
+    var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var labelIndex = 0;
+    var mapData = {};
+    $(function() {
+        initialize();
+
+    });
+    function initialize() {
+        // Get all map canvas with ".maps" and store them to a variable.
+        var maps = document.getElementsByClassName("maps");
+        // var directionsDisplay;
+        // var directionsService = new google.maps.DirectionsService();
+        var ids, gps, gps2, mapId = '';
+        var directionsDisplay = [];
+        var directionsService = [];
+        // Loop: Explore all elements with ".maps" and create a new Google Map object for them
+        for(var i=0; i<maps.length; i++) {
+            directionsDisplay[i] = new google.maps.DirectionsRenderer();
+            directionsService[i] = new google.maps.DirectionsService();
+            // Get ID of single div
+            mapId = document.getElementById(maps[i].id);
+            // Get LatLng stored in data attribute.
+            // !!! Make sure there is no space in data-attribute !!!
+            // !!! and the values are separated with comma !!!
+            gps = mapId.getAttribute('data-gps-from');
+            gps2 = mapId.getAttribute('data-gps-to');
+
+            // Convert LatLng to an array
+            gps = gps.split(",");
+            gps2 = gps2.split(",");
+
+            // Create new Google Map object for single canvas
+            map = new google.maps.Map(mapId, {
+                zoom: 15,
+                // Use our LatLng array bellow
+                center: new google.maps.LatLng(parseFloat(gps[0]), parseFloat(gps[1]))
+            });
+            directionsDisplay[i].setMap(map);
+            calcRoute(i);
+        }
+        function calcRoute(i) {
+            var start = new google.maps.LatLng(parseFloat(gps[0]),parseFloat(gps[1]));
+            var end = new google.maps.LatLng(parseFloat(gps2[0]),parseFloat(gps2[1]));
+            console.log("start: "+start+", end: "+end)
+            var bounds = new google.maps.LatLngBounds();
+            bounds.extend(start);
+            bounds.extend(end);
+            map.fitBounds(bounds);
+            var request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+            directionsService[i].route(request, function(result, status) {
+                if (status === 'OK') {
+                    directionsDisplay[i].setDirections(result);
+                }
+            });
+        }
+
+    }
+</script>
+<script>
+    function goToDropoff(address) {
+            if ("geolocation" in navigator) {
+                /* geolocation is available */
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    console.log(position.coords.latitude, position.coords.longitude);
+                    window.location.assign("http://maps.google.com/maps?addr="+position.coords.latitude+position.coords.longitude+"&daddr="+address);
+                });
+            } else {
+                /* geolocation IS NOT available */
+                window.alert('Geolocation not available. Update your browser.');
+            }
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDW7lWpvYWp_CF4WUrln5IaHB4_lDKVFb4"></script>
+<script type="text/javascript" src="/javascripts/gmaps.js"></script>
+
+</body>
+</html>

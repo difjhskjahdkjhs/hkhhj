@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+
+    <style type="text/css">
+        nav {
+            background: #000 !important;
+        }
+    </style>
+    <script type="text/javascript">
+        function sendAjax(data, mode) {
+            $(".hideOnClick"+data).slideUp( "slow", function() {
+                // Animation complete.
+            });
+            console.log("fak");
+            console.log(event);
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify({id: data, verify: mode}),
+                contentType: 'application/json',
+                url: 'http://localhost:3000/admin/verifyID',
+                success: function (data) {
+                    console.log('success');
+                    console.log(JSON.stringify(data));
+                }
+            });
+            return false;
+        };
+    </script>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <% include ../partials/admin_navbar.ejs %>
+
+    <div class="uk-section uk-section-xsmall ">
+        <button class="uk-button uk-button-default uk-button-small" type="button" uk-toggle="target: #offcanvas-nav-primary"><span class="uk-margin-small-right" uk-icon="menu"></span>Navigation</button>
+
+        <div class="uk-container uk-container-center">
+
+        <h1 class="uk-heading-divider">Verify Users ID's</h1>
+
+        <div>
+            <ul uk-accordion>
+
+                <% users.forEach(function (user) { %>
+                    <li>
+                        <a class="uk-accordion-title" href="#">Verify user: <%=user.username%></a>
+                        <div class="uk-accordion-content">
+                            <div class="uk-grid-small uk-child-width-expand@s uk-text-center" uk-grid>
+                                <div class="uk-width-3-5@m">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <img src="/<%=user.IDCard%>">
+                                    </div>
+                                </div>
+                                <div class="uk-width-2-5@m">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <dl class="uk-description-list">
+                                            <dt>Name</dt>
+                                            <dd><%=user.name%></dd>
+                                            <dt>Email</dt>
+                                            <dd><%=user.username%></dd>
+                                            <dt>Role</dt>
+                                            <dd><%=user.role%></dd>
+                                            <dt>Billing Address</dt>
+                                            <dd><%=user.billingAddress.houseAndStreet%>, <%=user.billingAddress.city%>, <%=user.billingAddress.postcode%></dd>
+                                        </dl>
+                                        <div class="hideOnClick<%=user._id%>">
+                                            <button class="uk-button uk-button-primary" onClick="return sendAjax(<%=JSON.stringify(user._id)%>, true)">Verify</button>
+                                            <button class="uk-button uk-button-danger" onClick="return sendAjax(<%=JSON.stringify(user._id)%>, false)">Decline</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
+
+                <% }); %>
+            </ul>
+
+        </div>
+    </div>
+    </div>
+</div>
+
+
+</body>
+</html>

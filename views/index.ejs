@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <title>Preeze - Get the party started</title>
+    <% include partials/head_content %>
+
+    <script type="text/javascript">
+        function sendAjaxQuery(e, url) {
+            e.preventDefault();
+            console.log('button clicked');
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (dataR) {
+                    // no need to JSON parse the result, as we are using
+                    // dataType:json, so JQuery knows it and unpacks the
+                    // object for us before returning it
+                    var ret = (dataR);
+                    // in order to have the object printed by alert
+                    // we need to JSON stringify the object
+                    //document.getElementById('results').innerHTML= JSON.stringify(ret);
+                    console.log(ret);
+                    console.log('dataR');
+                    UIkit.notification({message: '<span uk-icon=\'icon: cart\'></span> Product added to cart', pos: 'bottom-center'})
+                    $('#itemsInCart').html(ret);
+                },
+                error: function (xhr, status, error) {
+                    console.log('Error: ' + xhr.responseText);
+                    // $("#errors").html(xhr.responseText);
+                },
+                // timeout: 5000
+            });
+        }
+    </script>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include partials/navbar %>
+
+    <%if(!foundSuppliers) {%>
+        <div id="hero-heading" class="uk-section uk-section-medium">
+            <div class="uk-container">
+                <h1 class="uk-text-center uk-margin-remove-bottom heroHeadings" ><span>Fancy a drink?</span></h1>
+                <h4 class="uk-text-center uk-margin-small-top heroHeadings"><span>Search for stores and get it delivered!</span></h4>
+            </div>
+        </div>
+    <% } %>
+
+    <div class="uk-container uk-container-center uk-margin-small-bottom">
+        <div class="uk-section uk-section-xsmall">
+
+            <div id="search-section" class="uk-container ">
+                <form class="uk-flex uk-flex-right uk-flex-wrap-stretch" id="searchForm" action='/index' method='get' >
+
+                    <div class="uk-flex-1">
+                        <input id="searchInput" class="uk-form-blank" type="text" placeholder="Enter a postcode or an address..." name="postcode" value="<%= postCode %>">
+                    </div>
+
+                    <div style="padding: 0 10px;">
+                        <a href="#" id="geolocateBtn" uk-icon="icon: location; ratio: 1.4" ></a>
+                    </div>
+
+                    <div class="">
+                        <button id="indxSearch" class="uk-button uk-button-primary" type="submit" >Search!</button>
+                    </div>
+
+                </form>
+                <% if(totalSuppliers && totalSuppliers.length > 1) { %>
+                    <ul uk-accordion id="search-other-results">
+                        <li>
+                            <a class="uk-accordion-title" href="#"> View <strong><%= totalSuppliers.length %> other sellers</strong> in your area.</a>
+                            <div class="uk-accordion-content">
+                                <form action='/index' method='get'>
+                                    <fieldset class="uk-fieldset">
+                                        <div class="">
+                                            <input type="hidden" class="uk-input uk-width-4-5" type="text" placeholder="Whats your postcode?" name="postcode" value="<%= postCode %>">
+
+                                            <%for (var i = 0; i < totalSuppliers.length ; i++) {%>
+                                            <button type="submit" name="page" value="<%= i %>" class="uk-button uk-button-link"><%=i+1%>. <%= totalSuppliers[i].name %>, <%= totalSuppliers[i].address.houseAndStreet %></button><br>
+                                            <% }%>
+                                            <p>Note: Adding products from different suppliers to your cart will empty the cart.</p>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </li>
+                    </ul>
+                <% } %>
+            </div>
+
+        </div>
+
+        <% if (foundSuppliers) { %>
+            <%foundSuppliers.forEach(function(supplier) { %>
+                <div id="store-info" class="uk-card uk-card-small uk-card-default">
+                    <div class="uk-card-body">
+                        <%- include('suppliers/_supplier_details', {supplier: supplier}) %>
+                    </div>
+                    <div id="index-drink-switcher" class=" uk-card-footer">
+                        <ul uk-switcher="connect: #the-switcher" uk-tab style="margin-left: 0;">
+
+                            <li class="uk-padding-remove-left"><a href="#" class="index-switcher-links"><i class="fas fa-cocktail"></i>
+                                    Alcoholic</a></li>
+                            <li class="uk-padding-remove-left"><a href="#" class="index-switcher-links"><i class="fas fa-parachute-box"></i>
+                                    Deals</a></li>
+                            <li class="uk-padding-remove-left">
+                                <a href="#" class="index-switcher-links">
+                                    <i class="fas fa-cocktail "></i>
+                                    <i class="fas fa-ban fa-lg" style="margin-left: -22px;"></i>
+                                    Non-Alcoholic
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+        <div class="ui container">
+        <!--<a class="uk-button uk-button-default">Edit Profile</a>-->
+            <ul id="the-switcher" class="uk-switcher uk-margin">
+
+                <li>
+                    <div uk-filter=".js-filter">
+                        <div class="uk-clearfix uk-margin-small-top">
+                            <!--Viewing alcoholic drinks-->
+                            <button class="uk-button uk-button-default uk-button-small uk-align-right uk-margin-remove" type="button" id="index-filter-btn"><i class="fas fa-filter"></i> Filter</button>
+                            <div uk-dropdown="mode: click, pos: bottom-right" id="filter-dropdown">
+                                <ul class="uk-list uk-margin-remove-bottom" >
+                                    <li uk-filter-control=".tag-all"><a href="#">All</a></li>
+
+                                    <% types_of_alcohol.forEach(function (type) {%>
+                                        <li uk-filter-control=".tag-<%= type %>"><a href="#"><%= type %></a></li>
+                                    <%}) %>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <ul class="js-filter uk-child-width-1-2 uk-child-width-1-3@s uk-child-width-1-4@m uk-text-center uk-margin-small-top" uk-grid="masonry: true">
+                            <% supplier.products.forEach(function(item) {%>
+                                <% if (item.typeOfItem === "alcohol" && item.inStock > 0 && item.verified) {%>
+                                    <li class="tag-<%= item.typeOfAlcohol %> tag-all">
+                                        <%- include('./_partials/_card_item', {item: item, supplier: supplier}) %>
+                                    </li>
+                                <% } %>
+                            <% }); %>
+                        </ul>
+
+                    </div>
+                </li>
+                <li>
+                    <div class="uk-child-width-1-2 uk-child-width-1-3@s uk-child-width-1-4@m uk-text-center uk-margin-small-top" uk-grid="masonry: true">
+                        <% supplier.products.forEach(function(item) {%>
+                        <% if (item.typeOfItem === "pack" && item.inStock > 0 && item.verified) {%>
+                        <div>
+                            <%- include('./_partials/_card_item', {item: item, supplier: supplier}) %>
+                        </div>
+                        <% } %>
+                        <% }); %>
+                    </div>
+                </li>
+                <li>
+                    <div class="uk-child-width-1-2 uk-child-width-1-3@s uk-child-width-1-4@m uk-text-center uk-margin-small-top" uk-grid="masonry: true">
+                        <% supplier.products.forEach(function(item) {%>
+                            <% if (item.typeOfItem != "alcohol" && item.typeOfItem != "pack"  && item.inStock > 0 && item.verified) {%>
+                                <div>
+                                    <%- include('./_partials/_card_item', {item: item, supplier: supplier}) %>
+                                </div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </li>
+
+            </ul>
+            <br>
+            <% });%>
+        <%}%>
+
+        </div>
+    </div>
+
+    <% include partials/footer %>
+</div>
+
+<script>
+    $('#geolocateBtn').click(function() {
+        if ("geolocation" in navigator) {
+            /* geolocation is available */
+            navigator.geolocation.getCurrentPosition(function(position) {
+                console.log(position.coords.latitude, position.coords.longitude);
+                var form = document.getElementById('searchForm');
+                $('#searchInput').val(position.coords.latitude+", "+position.coords.longitude);
+                // Submit the form
+                form.submit();
+            });
+        } else {
+            /* geolocation IS NOT available */
+            window.alert('Geolocation not available. Update your browser.');
+        }
+    });
+</script>
+
+</body>
+</html>

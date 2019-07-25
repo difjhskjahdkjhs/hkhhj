@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <div class="uk-section uk-section-xsmall ">
+
+        <div class="uk-container">
+            <div class="uk-child-width-expand@s" uk-grid>
+                <div class="uk-width-1-5@s">
+                    <% include ../partials/user_navbar %>
+                </div>
+                <div class="uk-width-4-5@s">
+                    <div class="uk-child-width-expand@s" uk-grid="masonry: true">
+                        <% purchases.forEach(function(item) { %>
+                            <div class="uk-width-1-2@s" >
+                                <div class="uk-card uk-card-small uk-card-default uk-card-rounded">
+                                    <div class="uk-card-body">
+                                        <p><span class="cus-bold cus-purple"><%= item.supplierID.name %></span> <span style="float: right !important;"><%= moment(item.saleDate).format(shortDateFormat) %></span> <% item.saleDate.toLocaleTimeString()%></p>
+                                        <% for (var i = 0; i < item.products.length; i++) { %>
+
+                                            <div class="uk-grid-small" uk-grid>
+                                                <div class="uk-width-expand" uk-leader><%= item.products[i].title %> x <%= item.products[i].qty %></div>
+                                                <div><%= (parseFloat(item.products[i].qty) * parseFloat(item.products[i].price)).toFixed(2) %></div>
+                                            </div>
+                                        <% } %>
+
+                                    </div>
+                                    <div class="uk-card-footer">
+                                        <div class="uk-grid-small uk-grid-divider uk-child-width-expand@s" uk-grid>
+                                            <div>
+                                                <a href="/cart/checkout/<%=item._id%>">View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</body>
+</html>

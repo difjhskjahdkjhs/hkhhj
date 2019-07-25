@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+
+<head>
+    <title>Checkout - Preeze</title>
+    <% include ../partials/head_content %>
+    <!-- includes the Braintree JS client SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.2.1/moment.min.js" crossorigin="anonymous"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script type="text/javascript">
+        var stripe = Stripe('<%=keyPublishable%>');
+        var elements = stripe.elements();
+    </script>
+    <style type="text/css">
+        .StripeElement {
+            background-color: white;
+            /*height: 40px;*/
+            padding: 10px 12px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 3px 0 #e6ebf1;
+            -webkit-transition: box-shadow 150ms ease;
+            transition: box-shadow 150ms ease;
+        }
+        .StripeElement--focus {
+            box-shadow: 0 1px 3px 0 #cfd7df;
+        }
+        .StripeElement--invalid {
+            border-color: #fa755a;
+        }
+        .StripeElement--webkit-autofill {
+            background-color: #fefde5 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+        <% if (typeof cart !== "undefined")  { %>
+        <a href="#" onclick="window.history.go(-1); return false;"><span class="uk-icon-button" uk-icon="chevron-left"></span> Return</a>
+        <h3 class=""><i class="fas fa-shopping-cart"></i> Shopping Cart</h3>
+        <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-striped uk-card-default uk-card-rounded">
+                <thead>
+                <tr>
+                    <th class="uk-table-shrink"></th>
+                    <th class="uk-width-1-6"></th>
+                    <th class="uk-table-expand">Product Name</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% var total = 0 ; var discountApplied = 0; var deliveryDiscount = 0;%>
+                <%cart.forEach(function(product) {%>
+                    <% var price = parseFloat(product.price) * 100;   price = price +  Math.round(price * parseFloat(platformFee)); %>
+                    <% var subTotal = product.qty * price; total += subTotal;  %>
+                    <tr class="product-tr">
+                        <td><strong><%= product.qty %>x</strong></td>
+                        <td><img data-src="<%= product.image %>" style="max-height: 125px;" alt="<%= product.title %>" uk-img></td>
+                        <td> <%= product.title %><BR>
+                            <a href="/cart/update/<%= product.title %>?action=add">+</a>&nbsp;
+                            <a href="/cart/update/<%= product.title %>?action=remove">-</a>&nbsp;
+                            <a href="/cart/update/<%= product.title %>?action=clear">Remove</a>&nbsp;</td>
+                        <td><%= (price / 100).toFixed(2) %></td>
+                        <td><%= (subTotal/100).toFixed(2) %></td>
+                    </tr>
+                <%})%>
+                <tr>
+                    <td colspan="6" align="right">Cart total: £<%= ((total - (discountApplied*100))/100).toFixed(2); %></td>
+                </tr>
+                <% if (typeof coupon !== "undefined") {
+                    discountApplied = total * (coupon[0].discountAmount/100);
+                    deliveryDiscount = deliveryFee * (coupon[0].deliveryDiscountAmount/100)
+                }%>
+                <%if (discountApplied > 0) {%>
+                <tr>
+                    <td colspan="6" align="right">Discount <%=coupon[0].discountAmount%>%: - £<%= discountApplied %></td>
+                </tr>
+                <%}%>
+                <%if (deliveryDiscount > 0) {%>
+                <tr>
+                    <td colspan="6" align="right">Free delivery!</td>
+                </tr>
+                <% } else { %>
+                <tr>
+                    <td colspan="6" align="right">Delivery fee: + £<%= (deliveryFee - deliveryDiscount).toFixed(2) %></td>
+                </tr>
+                <%}%>
+                <tr>
+                    <td colspan="6" align="right">Total: £<%= ((total - discountApplied*100 + deliveryFee*100 - deliveryDiscount*100)/100).toFixed(2) %></td>
+                </tr>
+                <tr>
+                    <td colspan="5" align="right"><a href="/cart/clear">Clear Cart</a></td>
+                    <!--<td colspan="5" align="right"><a href="/cart/clear">Buy Now</a></td>-->
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <% if (!user) {%>
+        <div class="uk-card uk-card-default uk-card-small uk-card-body uk-card-rounded uk-margin-small-top">
+            Please <a href="/login"><i class="fas fa-sign-in-alt"></i><span style="font-size: 1rem;font-weight: bold; margin: 0 0 0 5px;">Login</span></a> or <a href="/register"><i class="fas fa-user-plus"></i><span style="font-size: 1rem;font-weight: bold; margin: 0 0 0 5px;">Signup</span></a> to continue with this purchase.
+        </div>
+        <% } else {%>
+            <div class="uk-grid-match" uk-grid>
+                <div class="uk-width-1-2@m">
+                    <div class="uk-card uk-card-default uk-card-small uk-card-body uk-card-rounded">
+                        <%- include('../suppliers/_supplier_details', {supplier: supplier}) %>
+                    </div>
+                </div>
+                <div class="uk-width-1-2@m">
+                    <div class="uk-card uk-card-default uk-card-small uk-card-body uk-card-rounded">
+                        <h3 class="uk-card-title"><span class="uk-icon" uk-icon="ratio: 1.2; icon: happy"></span> Apply a Coupon</h3>
+                        <% if (typeof coupon !== "undefined") {%>
+                        <div class="uk-alert-primary" uk-alert>
+                            <p>You are currently using <%= coupon[0].name %>. <a href="/cart/clearCoupon">Remove</a> </p>
+                        </div>
+                        <%} else { %>
+                        <form action="/cart/coupon" method="POST" id="">
+                            <input type="text" class="uk-input uk-form-width-medium" name="couponCode">
+                            <button class="uk-button uk-button-primary" type="submit" >Apply</button>
+                        </form>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <!-- This is the modal -->
+            <div id="my-id" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <h2 class="uk-modal-title">Add Address</h2>
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <form id="add-address" method="post" action="/users/addAddress">
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">House and Street</label>
+                            <div class="uk-form-controls">
+                            <input class="uk-input uk-form-width-medium uk-first-column" type="text" placeholder="House and Street" name="houseAndStreet">
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">City</label>
+                            <div class="uk-form-controls">
+                            <input class="uk-input uk-form-width-medium" type="text" placeholder="City" name="city">
+                        </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <label class="uk-form-label" for="form-stacked-text">Postcode</label>
+                            <div class="uk-form-controls">
+                            <input class="uk-input uk-form-width-medium" type="text" placeholder="Postcode" name="postcode">
+                            </div>
+                        </div>
+
+                        <div class="uk-margin">
+                            <input type="hidden" name="fromPage" value="cart">
+                            <button type="submit" class="uk-button uk-button-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <form action="/cart/charge" method="POST" class="serializeme uk-margin-top" id="payment-form">
+                <div class="uk-grid-match uk-margin-small-top" uk-grid>
+
+                    <div class="uk-width-1-1@m">
+                        <div class="uk-card uk-card-small uk-card-default uk-card-rounded">
+                            <div class="uk-card-body">
+
+                                <!-------- DELIVERY -------->
+                                <h3><span class="uk-icon" uk-icon="ratio: 1.2; icon:home"></span> Delivery Address</h3>
+                                <p>This can be changed from your <a href="/users"><span class="uk-icon" uk-icon="user"></span> profile</a>.</p>
+                                <% var validAddress = false %>
+                                <%for(var i = 0; i < user.deliveryAddress.length; i++) {%>
+                                <%var distance = pointsDistance(user.deliveryAddress[i].location.coordinates[1], user.deliveryAddress[i].location.coordinates[0], supplier.address.location.coordinates[1], supplier.address.location.coordinates[0]).toFixed(2)%>
+                                <% if (distance < 3) {%>
+                                <div>
+                                    <label>
+                                        <input class="uk-radio" type="radio" name="deliveryAddress" value="<%=i%>" <%= (validAddress == false) ? 'checked' : ''  %> required="required">
+                                        Use <%= user.deliveryAddress[i].houseAndStreet %>, <%= user.deliveryAddress[i].postcode %>, <%= user.deliveryAddress[i].city %>.<%=distance%>km
+                                    </label>
+                                </div>
+                                <% validAddress = true %>
+                                <%}%>
+                                <%}%>
+                            </div>
+                            <div class="uk-card-footer">
+                                <a href="#" uk-toggle="target: #my-id">Add Address</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-1-1@m">
+                        <div class="uk-card uk-card-small  uk-card-body uk-card-rounded">
+                            <h3><span class="uk-icon" uk-icon="ratio: 1.2; icon:credit-card"></span> Submit Your Payment</h3>
+                            <%if (!validAddress) {%>
+                            <p>You need a valid address within the shop's delivery range.</p>
+                            <% } else if (total < parseFloat(minimumOrder )) {%>
+                            <p>The minimum order is £<%=minimumOrder%>.</p>
+                            <% } else if (coupon && total < (coupon[0].minimumAmount)) {%>
+                            <p>The minimum order for this coupon is £<%=coupon[0].minimumAmount%>.</p>
+                            <%} else {%>
+                            <input type="hidden" id="cardToken" name="cardToken">
+                            <button id="customButton" style="display: none">Purchase</button>
+                            <div class="uk-margin">
+                                <div class="form-row">
+                                    <div id="card-element">
+                                        <!-- A Stripe Element will be inserted here. -->
+                                    </div>
+                                    <!-- Used to display form errors. -->
+                                    <div id="card-errors" role="alert"></div>
+                                </div>
+                            </div>
+
+                            <button class="uk-button uk-button-primary" id="submitPaymentBtn">Submit Payment</button>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        <% } %>
+
+
+    </div>
+
+
+
+        <% } else { %>
+        <h4>Your cart is empty</h4>
+        <% } %>
+    </div>
+</div>
+<%
+function degreesToRadians(degrees) {
+    return degrees * Math.PI / 180;
+}
+function pointsDistance(lat1, lon1, lat2, lon2) {
+    var earthRadiusKm = 6371;
+    var dLat = degreesToRadians(lat2-lat1);
+    var dLon = degreesToRadians(lon2-lon1);
+    lat1 = degreesToRadians(lat1);
+    lat2 = degreesToRadians(lat2);
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return earthRadiusKm * c;
+}
+%>
+<script type="text/javascript">
+    var now = moment().startOf('hour');
+    var all_hours=['5pm', '5:30pm', '6pm', '6:30pm', '7pm', '7:30pm', '8pm', '8:30pm', '9pm', '9:30pm', '10pm', '10:30pm', '11pm', '11:30pm', '12pm'];
+    var remaining_hours;
+    var start_time = 17;
+    // if it is earlier than 5pm (17H)
+    if (parseInt(now.format("H")) < start_time) {
+        console.log("before");
+        remaining_hours = all_hours;
+    } else {
+        var currentTime = parseInt(now.format("H")) - start_time;
+        remaining_hours = all_hours.slice((currentTime + 1) * 2 , all_hours.length)
+    }
+    remaining_hours.forEach(function (value) {
+        $("#timetable").append("<option value='"+value+"'>"+value+"</option>");
+    })
+
+
+    var style = {
+        base: {
+            // Add your base input styles here. For example:
+            fontSize: '16px',
+            color: "#32325d"
+        }
+    };
+    // Create an instance of the card Element.
+    var card = elements.create('card', {style: style});
+    // Add an instance of the card Element into the `card-element` <div>.
+    card.mount('#card-element');
+    card.addEventListener('change', function(event) {
+        var displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        $('#submitPaymentBtn').prop('disabled', true);
+        UIkit.notification({
+            message: 'We are processing your request',
+            status: 'primary',
+            pos: 'bottom-center',
+            timeout: 5000
+        });
+        stripe.createToken(card).then(function(result) {
+            if (result.error) {
+                // Inform the customer that there was an error.
+                var errorElement = document.getElementById('card-errors');
+                errorElement.textContent = result.error.message;
+                $('#submitPaymentBtn').prop('disabled', false);
+            } else {
+                // Send the token to your server.
+                stripeTokenHandler(result.token);
+            }
+        });
+    });
+    function stripeTokenHandler(token) {
+        // Insert the token ID into the form so it gets submitted to the server
+        var form = document.getElementById('payment-form');
+        var hiddenInput = document.createElement('input');
+        hiddenInput.setAttribute('type', 'hidden');
+        hiddenInput.setAttribute('name', 'stripeToken');
+        hiddenInput.setAttribute('value', token.id);
+        form.appendChild(hiddenInput);
+        // Submit the form
+        form.submit();
+    }
+
+</script>
+</body>
+</html>

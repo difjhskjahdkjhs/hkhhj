@@ -1,0 +1,75 @@
+<div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+    <nav class="uk-navbar-container" uk-navbar style="background: #32d296">
+        <div class="uk-navbar-left">
+            <a class="uk-navbar-item uk-logo" href="/index">Preeze</a>
+        </div>
+
+        <div class="uk-navbar-right">
+            <ul class="uk-navbar-nav">
+            <% if (false) { %>
+                <li><a href="/register" class="nav-color-white"><i class="fas fa-user-plus"></i><span style="font-size: 1rem;font-weight: bold; margin: 0 0 0 5px;">Signup</span></a></li>
+                <li><a href="/login" class="nav-color-white"><i class="fas fa-sign-in-alt"></i><span style="font-size: 1rem;font-weight: bold; margin: 0 0 0 5px;">Login</span></a></li>
+            <% } %>
+                <li>
+                    <a href="/cart/checkout" class="nav-color-white"><i class="fas fa-shopping-cart"></i>
+                        <span id="itemsInCart" style="font-size: 1rem;font-weight: bold; margin: 0 0 0 5px;"> <%= ((typeof cart !== "undefined") ? cart.length : 0)%></span>
+                    </a>
+                </li>
+                <a class="uk-navbar-toggle uk-navbar-toggle-icon uk-icon nav-color-white" href="#offcanvas-nav" uk-navbar-toggle-icon="" uk-toggle="target: #offcanvas-nav"><svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><rect y="9" width="20" height="2"></rect><rect y="3" width="20" height="2"></rect><rect y="15" width="20" height="2"></rect></svg></a>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<div id="offcanvas-nav" uk-offcanvas="overlay: true; flip: true">
+    <div class="uk-offcanvas-bar">
+        <h2>Quick Links</h2>
+        <ul class="uk-nav uk-nav-primary">
+            <!--<li class="uk-active"><a href="#">Active</a></li>-->
+            <!--<li class="uk-nav-header">Quick Links</li>-->
+            <li><a href="/index"><i class="fas fa-bars fa-fw"></i> Index</a></li>
+
+            <% if (!user) { %>
+                <li><a href="/register"><i class="fas fa-user-plus"> </i></span>Signup</a></li>
+                <li><a href="/login"><i class="fas fa-sign-in-alt"></i>Login</a></li>
+            <% } else { %>
+
+            <li><a href="/users"><i class="fas fa-user-alt fa-fw"></i> Profile</a></li>
+            <li><a href="/users/purchases"><i class="fas fa-shopping-cart fa-fw fa-fw"></i> Purchases</a></li>
+
+            <% if (user && user.role === 'supplier' || user.role === 'admin') { %>
+            <li class="uk-nav-divider"></li>
+
+            <%if (user.supplierID) {%>
+                <li><a href="/supplier"><i class="fas fa-store-alt fa-fw"></i> Supplier Area</a></li>
+                <li><a href="/supplier/currentSales"><i class="fas fa-store-alt fa-fw"></i> Current Sales</a></li>
+                <% } else { %>
+                    <li><a href="/supplierCreate"><i class="fas fa-store-alt fa-fw"></i> Supplier Area</a></li>
+                <% } %>
+            <% } %>
+
+            <% if (user && user.role ==='driver' || user.role === 'admin') { %>
+            <li class="uk-nav-divider"></li>
+
+            <li><a href="/driver"><i class="fas fa-car fa-fw"></i> Driver Area</a></li>
+            <% } %>
+
+            <% if (user && user.role === 'admin') { %>
+            <li class="uk-nav-divider"></li>
+
+            <li><a href="/admin"><i class="fas fa-cogs fa-fw"></i> Admin Panel</a></li>
+            <% } %>
+            <li class="uk-nav-divider"></li>
+
+            <li><a href="/logout"><i class="fas fa-power-off fa-fw"></i> Logout</a></li>
+            <% } %>
+
+
+        </ul>
+
+    </div>
+</div>
+
+<div class=" uk-container">
+    <%- messages('partials/message_template', locals) %>
+</div>

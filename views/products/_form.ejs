@@ -1,0 +1,106 @@
+<fieldset class="uk-fieldset">
+
+    <legend class="uk-legend">
+        <%= ((!product) ? 'Add and Item' : 'Edit an Item') %>
+    </legend>
+
+    <% if(errors) { %>
+    <ul>
+        <% errors.forEach(function(element) {%>
+        <li><%= element %></li>
+        <% }); %>
+    </ul>
+    <% } %>
+
+    <div class="uk-margin">
+        <label class="uk-form-label" for="title">Name</label>
+        <input class="uk-input" type="text" placeholder="Name Of Product" name="title" value="<%= ((product.title) ? product.title : '') %>">
+    </div>
+
+    <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">Type of Item</label>
+        <select class="uk-select" name="typeOfItem" onclick="isAlcohol(this)" onChange="isAlcohol(this);" id="typeOfItemSelect">
+            <option value="alcohol" selected="selected">Alcohol</option>
+            <option value="pack">Pack</option>
+            <option value="mixer">Mixer</option>
+            <option value="other">Other</option>
+            <%if (product) {%>
+            <option value="<%= product.typeOfItem %>" selected="selected">Selected: <%= product.typeOfItem %></option>
+            <%}%>
+        </select>
+    </div>
+
+    <div class="uk-margin" id="typeOfAlcoholSelect">
+        <label class="uk-form-label" for="form-stacked-text">Type of Alcohol</label>
+        <select class="uk-select" name="typeOfAlcohol">
+            <% types_of_alcohol.forEach(function (type) {%>
+            <option value="<%= type %>"><%= type %></option>
+            <%}) %>
+        </select>
+    </div>
+
+    <div class="uk-margin" id="packElementInputs" style="display: none">
+        <label class="uk-form-label" for="form-stacked-text">Pack Contents</label>
+        <input class="uk-input" type="text" placeholder="First Product" name="packItem1" value="<%= ((product && product.packItems[0]) ? product.packItems[0] : '') %>">
+        <input class="uk-input" type="text" placeholder="Second Product" name="packItem2" value="<%= ((product && product.packItems[1]) ? product.packItems[1] : '') %>">
+        <input class="uk-input" type="text" placeholder="Third Product" name="packItem3" value="<%= ((product && product.packItems[2]) ? product.packItems[2] : '') %>">
+        <input class="uk-input" type="text" placeholder="Fourth Product" name="packItem4" value="<%= ((product && product.packItems[3]) ? product.packItems[3] : '') %>">
+        <input class="uk-input" type="text" placeholder="Fifth Product" name="packItem5" value="<%= ((product && product.packItems[4]) ? product.packItems[4] : '') %>">
+    </div>
+
+
+    <div class="uk-margin">
+        <label class="uk-form-label" for="form-s-file">Product Image</label>
+        <input class="uk-width-1-1" id="form-s-file" type="file" name="fileToUpload" multiple>
+        <!--<p>-->
+        <!--<span class="uk-label">Info</span> The max file size is []mb. The recommended image size is []px.-->
+        <!--</p>-->
+    </div>
+
+    <div class="uk-margin">
+        <label class="uk-form-label" for="title">Amount In Stock</label>
+        <input class="uk-input" type="text" placeholder="Number of items available for sale" name="inStock" value="<%= ((product.inStock) ? product.inStock : '') %>">
+    </div>
+
+    <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">Selling Price</label>
+        <div>
+            <div class="uk-inline">
+                <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: info"></span>
+                <input class="uk-input" type="text" name="sellingPrice">
+            </div>
+            <div class="uk-inline">
+                + <%=parseFloat(platform_fee)*100%>% Platform Fee ->
+                Final price: <span id="finalSellingPrice">0</span>
+            </div>
+        </div>
+        <p>
+
+        </p>
+    </div>
+
+    <div class="uk-margin">
+        <button class="uk-button uk-button-primary">Submit</button>
+    </div>
+
+</fieldset>
+
+<script>
+    $('input:text[name=sellingPrice]').on("input", function() {
+        var dInput = this.value;
+        var fee = <%=platform_fee%>;
+        var sellingPrice = parseFloat(dInput)+parseFloat(dInput*fee);
+        $('#finalSellingPrice').html(sellingPrice.toFixed(2));
+    });
+    function isAlcohol(elem) {
+        document.getElementById('typeOfAlcoholSelect').style.display = 'none';
+        document.getElementById('packElementInputs').style.display = 'none';
+        if (elem.options[elem.selectedIndex].value === "alcohol") {
+            document.getElementById('typeOfAlcoholSelect').style.display = 'block';
+        } else if (elem.options[elem.selectedIndex].value === "pack") {
+            document.getElementById('packElementInputs').style.display = 'block';
+        }
+    }
+
+    isAlcohol(document.getElementById('typeOfItemSelect'));
+</script>

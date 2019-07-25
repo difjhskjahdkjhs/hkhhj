@@ -1,0 +1,60 @@
+<div class="uk-card uk-card-small uk-card-default uk-card-rounded">
+    <div class="uk-card-body">
+        <P><STRONG>Pickup id:</STRONG> <%= item.storeIdentifier %> <span style="float: right !important;"><%= moment(item.saleDate).format(shortDateFormat) %></span></P>
+        <% var total = 0;%>
+        <% item.products.forEach(function (product) { %>
+        <% var subTotal = parseFloat(product.qty * product.price).toFixed(2); total += parseFloat(subTotal); %>
+
+        <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-expand" uk-leader><%=product.title%> x <%=product.qty%> @ <%=product.price%></div>
+            <div><%=subTotal || " "%></div>
+        </div>
+        <% }) %>
+
+        <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-expand" uk-leader>Total</div>
+            <div><%=total.toFixed(2)  || " "%></div>
+        </div>
+    </div>
+    <div class="uk-card-footer">
+        <div class="uk-grid-small uk-grid-divider uk-child-width-expand@s" uk-grid>
+            <div><% if(item.isVerified) { %>
+                Verified
+                <%} else { %>
+                <a href="/supplier/verifyOrder/<%= item._id %>">Verify Order</a>
+                <%} %></div>
+            <div><% if(item.hasDriver) { %>
+                Has Driver
+                <%} else { %>
+                Driver Pending
+                <%} %></div>
+            <div><% if(item.isPickedUp) { %>
+                Picked Up
+                <%} else { %>
+                <a href="/supplier/confirmPickup/<%= item._id %>">Confirm Pickup</a>
+                <%} %></div>
+            <% if(canCancel) { %>
+            <div>
+                <% if(item.isCanceled) { %>
+                Canceled
+                <%} else { %>
+                <a href="#modal-cance-<%= item._id %>" uk-toggle>Cancel Order</a>
+                <%} %>
+            </div>
+            <%} %>
+        </div>
+    </div>
+</div>
+
+<!-- This is an anchor toggling the modal -->
+
+<!-- This is the modal -->
+<div id="modal-cance-<%= item._id %>" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Attention!</h2>
+        <p>You are about to cancel an order and refund the client. <strong>This cannot be undone!</strong></p>
+        <p class="uk-text-right">
+            <a href="/supplier/cancelAndRefund/<%= item._id %>" class="uk-button uk-button-danger">Cancel & Refund</a>
+        </p>
+    </div>
+</div>

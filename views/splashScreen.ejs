@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Preeze - Get The Party Started</title>
+    <link rel="icon" href="img/favicon.ico">
+    <!-- CSS FILES -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.2/css/uikit.min.css">
+    <STYLE type="text/css">
+        @font-face { font-family: "Poetsen One"; src: url('fonts/PoetsenOne-Regular.ttf'); }
+
+        .bg-green {
+            background: #32d296;
+        }
+        #title {
+            font-size: 64px;
+            color: white;
+            font-family: "Poetsen One";
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0px 1px 5px #1e865f;
+            letter-spacing: 5px;
+            margin: 0 0 6px 0;
+            border-bottom: 3px solid #fff;
+        }
+        #subtitle {
+            text-align: center;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 22px;
+            text-shadow: 0px 1px 5px #1f9468;
+        }
+        .custom-btn {
+            background: #fff;
+            font-weight: bold;
+            color: #404040;
+        }
+        #buttonDiv {
+            text-align: center;
+            margin: 50px 0 0 0;
+        }
+    </STYLE>
+</head>
+<body class="uk-height-1-1">
+<div class="uk-flex uk-flex-center uk-flex-middle uk-height-viewport bg-green">
+
+    <div class="uk-width-medium uk-padding-small">
+        <H2 id="title">PREEZE</H2>
+        <div id="subtitle">Get the party started</div>
+        <div id="buttonDiv">
+        <a class="uk-button uk-button-default custom-btn" uk-toggle="target: #login-modal">Log In</a>
+        <a class="uk-button uk-button-default custom-btn" href="/register">Register</a>
+        </div>
+    </div>
+
+    <!-- This is the modal -->
+    <div id="login-modal" uk-modal>
+        <div class="uk-flex-center uk-flex-middle"></div>
+        <div class="uk-modal-dialog uk-modal-body">
+            <form action='/login' method='POST' class="form-login">
+                <fieldset class="uk-fieldset">
+                    <legend class="uk-legend">Login</legend>
+                    <div class="uk-margin">
+                        <div class="uk-inline uk-width-1-1">
+                            <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: user"></span>
+                            <input class="uk-input uk-form-large" required placeholder="Username" type="email" name="username">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <div class="uk-inline uk-width-1-1">
+                            <span class="uk-form-icon uk-form-icon-flip" data-uk-icon="icon: lock"></span>
+                            <input class="uk-input uk-form-large" required placeholder="Password" type="password" name="password">
+                        </div>
+                    </div>
+
+                    <div class="uk-margin">
+                        <a href="/forgot">Forgot your password?</a>
+                    </div>
+
+                    <div class="uk-margin">
+
+                        <button type="submit" class="uk-button uk-button-primary uk-button-primary uk-button-large uk-width-1-1">LOG IN</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS FILES -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.2/js/uikit.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.2/js/uikit-icons.min.js"></script>
+</body>
+</html>

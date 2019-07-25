@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <META HTTP-EQUIV="refresh" CONTENT="60">
+
+    <% include ../partials/head_content %>
+
+    <script src="/javascripts/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <div class="uk-section uk-section-xsmall ">
+        <div class="uk-container uk-container-center uk-margin-large-bottom">
+            <% include ../partials/supplier_navbar %>
+
+            <h1 class="uk-heading-divider">Current Deliveries</h1>
+            <div class="uk-child-width-1-2@s" uk-grid>
+                <% sales.forEach(function(item) {%>
+                    <div>
+                        <%- include('_sale_overview', {item: item, canCancel: true}) %>
+                    </div>
+                <%});%>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

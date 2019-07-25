@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include partials/head_content %>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include partials/navbar %>
+    <div class="uk-section uk-section-small">
+        <div class="uk-container uk-container-center uk-margin-large-bottom">
+
+            <p class="h5 top-1-rem">Sign Up:</p>
+            <div class="separator-red"></div>
+            <form action='/register' method='post' class="form-login">
+                <fieldset class="uk-fieldset">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for='name'>Name:</label>
+                        <input class="uk-input" type="text" name="name" id="name" required="required">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for='surname'>Surname:</label>
+                        <input class="uk-input" type="text" name="surname" id="surname" required="required">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for='bday'>Birthday:</label>
+                        <input class="uk-input" type="date" name="bday" id="bday" required="required">
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for='username'>Email:</label>
+                        <input class="uk-input" type="email" name="username" id="username" >
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for='username'>Telephone Number:</label>
+                        <input class="uk-input" type="tel" name="telephone" id="telephone" >
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for='password'>Password:</label>
+                        <input class="uk-input" type="password" name="password" id="password" >
+                        <label class="uk-form-label" for='password2'>Retype Password:</label>
+                        <input class="uk-input" type="password" name="password2" id="password2" >
+                    </div>
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="title">House Number and Street</label>
+                        <input class="uk-input" type="text" placeholder="10 Summer Street" name="houseAndStreet">
+                    </div>
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="title">City</label>
+                        <input class="uk-input" type="text" placeholder="Sheffield" name="city">
+                    </div>
+
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="title">Postcode</label>
+                        <input class="uk-input" type="text" placeholder="S3 7NS" name="postcode">
+                        <p>
+                            <span class="uk-label">Note</span> We will use this as your billing and delivery address (You will be able to select a different delivery address on checkout)
+                        </p>
+                    </div>
+
+                    <div class="uk-margin">
+                        <input type="checkbox" required="required"> I agree that I am 18 years or older and will present identification with each purchase
+                    </div>
+
+                    <div class="uk-margin">
+                        <button class="uk-button uk-button-primary" type="submit" name="g" value="Register" id="g">Register</button>
+                    </div>
+
+
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

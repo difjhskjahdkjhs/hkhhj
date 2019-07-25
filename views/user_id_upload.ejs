@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ./partials/head_content %>
+
+    <script src="/javascripts/index.js"></script>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include partials/navbar %>
+    <div class="uk-section uk-section-xsmall ">
+
+        <div class="uk-container">
+            <div class="uk-child-width-expand@s" uk-grid>
+                <div class="uk-width-1-5@s">
+                    <% include partials/user_navbar %>
+                </div>
+                <div class="uk-width-4-5@s">
+                    <div uk-alert>
+                        <a class="uk-alert-close" uk-close></a>
+                        <h3>Important</h3>
+                        <p>In order to purchase alcoholic beverages, we must verify your ID to ensure you are legally allowed to make the purchase</p>
+                    </div>
+                    <% if(user.isIDVerified) { %>
+                    <div class="uk-alert-success" uk-alert>
+                        <a class="uk-alert-close" uk-close></a>
+                        <h3>Congratulations</h3>
+                        <p>Your ID has been verified and you can now make purchases. But remember drivers will verify your ID again when delivering a purchase.</p>
+                    </div>
+                    <%}%>
+
+                    <% if(user.IDCard) { %>
+                    <img src="/<%= user.IDCard%>" uk-img>
+
+                    <%} else {%>
+                    <form action="/users/uploadID" enctype="multipart/form-data" method="post" class="uk-form-stacked">
+                        <div class="uk-margin">
+                            <label class="uk-form-label">Passport Image</label>
+                            <div class="uk-form-controls">
+                                <input type="file" name="fileToUpload" multiple>
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            <input type="submit" value="Upload" class="uk-button uk-button-default">
+                        </div>
+                    </form>
+                    <%}%>
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</body>
+</html>

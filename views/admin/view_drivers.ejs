@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+
+    <style type="text/css">
+        nav {
+            background: #000 !important;
+        }
+    </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <% include ../partials/admin_navbar.ejs %>
+
+
+    <div class="uk-section uk-section-xsmall ">
+        <button class="uk-button uk-button-default uk-button-small" type="button" uk-toggle="target: #offcanvas-nav-primary"><span class="uk-margin-small-right" uk-icon="menu"></span>Navigation</button>
+
+
+
+        <div class="uk-container uk-container-center">
+
+            <h4>Pick a date range</h4>
+            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; ">
+                <a href="" uk-icon="calendar"></a>&nbsp;
+                <span></span>
+            </div>
+
+            <h3 id="pageTitle">All Time Suppliers Data</h3>
+            <div class="uk-overflow-auto">
+                <table class="uk-table uk-table-striped" id="dataTable">
+                    <thead>
+                    <tr>
+                        <th>DriverID</th>
+                        <th>Total Rides</th>
+                        <th uk-tooltip="title: This is the payback to the driver">Payback</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <% for (var i = 0; i < data.length; i++) { %>
+                        <tr><td><%=data[i].stripe_account_id%></td><td><%= data[i].finishedJobs.length %></td><td><%= data[i].finishedJobs.length * 2 %></td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div>
+</div>
+
+
+<script type="text/javascript">
+    $(function() {
+
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            endDate: end,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
+
+        cb(start, end);
+
+        $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+            console.log(picker.startDate.format('YYYY-MM-DD'));
+            console.log(picker.endDate.format('YYYY-MM-DD'));
+            var mydata = {start: picker.startDate.format('YYYY-MM-DD'),
+                end: picker.endDate.format('YYYY-MM-DD')}
+            $.ajax({
+                type: 'POST',
+                data: mydata,
+                url: '/admin/viewDrivers',
+                success: function (data) {
+                    console.log('success');
+                    $('#pageTitle').html("Viewing data for "+ picker.startDate.format('DD-MM-YYYY') + " to "+ picker.endDate.format('DD-MM-YYYY'))
+
+                    $("#dataTable tbody").html("");
+                    for(var i = 0; i < data.length; i ++) {
+                        console.log(JSON.stringify(data[i]));
+                        var toAppend ="<tr><td>"+data[i]._id+"</td>" +
+                            "<td>"+data[i].finishedJobs.length+"</td>" +
+                            "<td>"+ data[i].finishedJobs.length * 2 +"</td></tr>";
+                        console.log(toAppend);
+
+                        $("#dataTable tbody").append(toAppend);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

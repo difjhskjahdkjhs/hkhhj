@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ./partials/head_content %>
+
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include partials/navbar %>
+    <div class="uk-section uk-section-xsmall ">
+
+        <div class="uk-container">
+            <div class="uk-child-width-expand@s" uk-grid>
+                <div class="uk-width-1-5@s">
+                    <% include partials/user_navbar %>
+                </div>
+                <div class="uk-width-4-5@s">
+
+                    <ul uk-switcher uk-tab>
+                        <li><a href="#">View Profile</a></li>
+                        <li><a href="#">Edit Profile</a></li>
+                    </ul>
+
+                    <!--<a class="uk-button uk-button-default">Edit Profile</a>-->
+                    <ul class="uk-switcher uk-margin">
+                        <li>
+                            <dl class="uk-description-list ">
+                                <dt>Name:</dt>
+                                <dd><%= user.name %></dd>
+                                <dt>Surname:</dt>
+                                <dd><%= user.surname %></dd>
+                                <dt>Date Of Birth:</dt>
+                                <dd><%= user.DoB.toLocaleDateString('en-GB') %></dd>
+                                <dt>Email:</dt>
+                                <dd><%= user.username %></dd>
+                                <dt>Telephone Number:</dt>
+                                <dd><%= user.telephone1 %></dd>
+
+                                <dt>Delivery Address:</dt>
+                                <dd>
+                                    <table class="uk-table uk-table-striped">
+                                        <tbody>
+                                            <%for (var i = 0; i < user.deliveryAddress.length; i++) {%>
+                                            <tr>
+                                                <td> <%= user.deliveryAddress[i].houseAndStreet %>, <%= user.deliveryAddress[i].postcode %>, <%= user.deliveryAddress[i].city %></td>
+                                                <td align="right"><a href="/users/removeAddress/<%=i%>">Remove</a><span uk-icon="icon: trash; ratio: .8"></span></td>
+                                            </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </dd>
+
+                                <dd>
+                                    <a href="#" uk-icon="icon: plus"  uk-toggle="target: #add-address" style="text-align: right">Add Address</a>
+                                    <form id="add-address" method="post" action="/users/addAddress" hidden>
+                                        <div class="uk-margin">
+                                            <label class="uk-form-label" for="form-stacked-text">House and Street</label>
+                                            <div class="uk-form-controls">
+                                                <input class="uk-input uk-form-width-medium uk-first-column" type="text" placeholder="House and Street" name="houseAndStreet">
+                                            </div>
+                                        </div>
+                                        <div class="uk-margin">
+                                            <label class="uk-form-label" for="form-stacked-text">City</label>
+                                            <div class="uk-form-controls">
+                                                <input class="uk-input uk-form-width-medium" type="text" placeholder="City" name="city">
+                                            </div>
+                                        </div>
+
+                                        <div class="uk-margin">
+                                            <label class="uk-form-label" for="form-stacked-text">Postcode</label>
+                                            <div class="uk-form-controls">
+                                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Postcode" name="postcode">
+                                            </div>
+                                        </div>
+
+                                        <div class="uk-margin">
+                                            <input type="submit" value="Add" class="uk-button uk-button-primary">
+                                        </div>
+                                    </form>
+                                </dd>
+                                <dt>Billing Address:</dt>
+                                <dd><%= user.billingAddress.houseAndStreet %>, <%= user.billingAddress.city %>, <%= user.billingAddress.postcode %></dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <form class="uk-form-stacked my-class"  method="post" action="/users">
+
+                                <div class="uk-margin">
+                                    <label class="uk-form-label" for="form-stacked-text">Name</label>
+                                    <div class="uk-form-controls">
+                                        <input class="uk-input" id="form-stacked-text" type="text" placeholder="First Name" name="name">
+                                    </div>
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label class="uk-form-label" for="form-stacked-text">Surname</label>
+                                    <div class="uk-form-controls">
+                                        <input class="uk-input" id="form-stacked-text" type="text" placeholder="Surname" name="surname">
+                                    </div>
+                                </div>
+
+                                <div class="uk-margin">
+                                    <label class="uk-form-label" for="form-stacked-text">Date of Birth</label>
+                                    <div class="uk-form-controls">
+                                        <input class="uk-input" id="form-stacked-text" type="date" placeholder="DoB" name="DoB">
+                                    </div>
+                                </div>
+                                <div class="uk-margin">
+                                    <label class="uk-form-label" for='username'>Telephone Number:</label>
+                                    <input class="uk-input" type="tel" name="telephone" id="telephone" >
+                                </div>
+                                <div class="uk-margin">
+                                    <label class="uk-form-label" for="form-stacked-text">Billing Address</label>
+                                    <input class="uk-input uk-form-width-medium uk-first-column" type="text" placeholder="House and Street" name="houseAndStreet">
+                                    <input class="uk-input uk-form-width-small" type="text" placeholder="City" name="city">
+                                    <input class="uk-input uk-form-width-small" type="text" placeholder="Postcode" name="postcode">
+                                </div>
+                                <div class="uk-margin">
+                                    <input type="submit" class="uk-button uk-button-primary">
+                                </div>
+
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+
+    <script src="/javascripts/index.js"></script>
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+    <h3>Reset Password</h3>
+<form method="POST">
+    <input type="hidden" name="_csrf" />
+    <div class="uk-margin-small">
+        <div class="uk-inline uk-width-1-1">
+        <label class="col-md-3 col-form-label font-weight-bold text-right" for="password">New Password</label>
+            <input  class="uk-input" type="password" name="password" id="password" placeholder="New password" autofocus="autofocus" autocomplete="new-password" required="required" />
+        </div>
+    </div>
+    <div class="uk-margin-small">
+        <div class="uk-inline uk-width-1-1">
+        <label class="col-md-3 col-form-label font-weight-bold text-right" for="confirm">Confirm Password</label>
+            <input  class="uk-input" type="password" name="confirm" id="confirm" placeholder="Confirm password" autocomplete="new-password" required="required" />
+        </div>
+    </div>
+    <div class="uk-margin-small">
+        <button type="submit" class="uk-button uk-button-primary uk-button-primary uk-width-1-1">CHANGE PASSWORD</button>
+    </div>
+</form>
+    </div>
+
+
+</body>
+</html>

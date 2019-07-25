@@ -1,0 +1,28 @@
+<div class="uk-card-small uk-card-default uk-card-body bg-white uk-card-rounded">
+<% if(item.typeOfItem === "pack") {%>
+    <div class="uk-card-badge-custom uk-label-green">
+        <a uk-toggle="target: #toggle-usage-<%=item._id%>"><i class="fas fa-info"></i></a>
+    </div>
+    <h4 class="uk-margin-remove-top uk-margin-remove-bottom item-names cus-purple cus-bold"><%= item.title %></h4>
+
+    <div style="position: relative" >
+        <div id="toggle-usage-<%=item._id%>" class="pack-info-toggle"  hidden>
+        <% item.packItems.forEach(function (product) {%>
+            <div><%= product %></div>
+        <% }) %>
+        </div>
+        <img class="uk-margin-small-top uk-margin-remove-bottom" src="<%= item.image %>" style="max-height: 150px" ><br>
+    </div>
+<% } else {%>
+    <h4 class=" uk-margin-remove-bottom item-names cus-purple cus-bold"><%= item.title %></h4>
+    <img class="uk-margin-small-top uk-margin-remove-bottom" src="<%= item.image %>" style="max-height: 150px" ><br>
+<% }%>
+    <div class="uk-flex uk-flex-between uk-flex-middle">
+        <div class="uk-flex-auto"><h4 class="uk-margin-small-top uk-margin-small-bottom cus-purple cus-bold">£<%= (item.sellingPrice * (1+parseFloat(platformFee))).toFixed(2) %></h4></div>
+        <div>
+            <a href="#" class="" onclick="sendAjaxQuery(event, '/cart/add/<%=supplier._id%>/<%=item._id%>')" style="padding: 5px;">
+                <i class="fas fa-cart-plus fa-lg"></i>
+            </a>
+        </div>
+    </div>
+</div>

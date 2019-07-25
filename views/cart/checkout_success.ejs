@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="uk-height-1-1">
+<head>
+    <% include ../partials/head_content %>
+    <META HTTP-EQUIV="refresh" CONTENT="60">
+
+    <script src="/javascripts/index.js"></script>
+    <!-- includes the Braintree JS client SDK -->
+    <script src="https://js.braintreegateway.com/web/dropin/1.11.0/js/dropin.min.js"></script>
+
+</head>
+<body>
+<div class="uk-offcanvas-content">
+    <% include ../partials/navbar %>
+    <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+        <div class="ui container">
+
+            <div class="uk-card uk-card-default uk-card-small uk-card-body uk-card-rounded">
+                <%- include('../suppliers/_supplier_details', {supplier: sale.supplierID}) %>
+            </div>
+
+            <h4>List of Products (<%= sale.products.length %>)</h4>
+            <table class="uk-table uk-table-divider">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Item Name</th>
+                    <th>Price</th>
+                    <th>Total Price</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% var total = 0; %>
+
+                <% sale.products.forEach(function(item) { %>
+                <% var price = parseFloat(item.price) * 100;   price = price +  Math.round(price * parseFloat(platformFee)); %>
+                <% var subTotal = item.qty * price; total += subTotal;  %>
+
+                <tr>
+                    <td><img data-src="<%= item.image %>" style="max-height: 125px" alt="<%= item.title %>" uk-img></td>
+                    <td><%= item.qty %> x <%= item.title %>
+
+                    <td><%= price/100 %></td>
+                    <td><%= subTotal/100 %></td>
+                </tr>
+                <% }); %>
+
+                <!-- DELIVERY COST + TOTAL COST -->
+                <% if(sale.coupon.name) { %>
+                <tr>
+                    <td colspan="5" align="right">Coupon "<%= sale.coupon.name %>": -
+                        £<%= (parseFloat(sale.amount)*100).toFixed(2) %></td>
+                </tr>
+                <% } %>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="3" align="right">Delivery fee: + £<%= sale.deliveryCost %></td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="3" align="right">Total: £<%= (sale.totalCost/100) + sale.deliveryCost%></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="uk-card uk-card-default uk-card-small uk-card-body uk-card-rounded">
+                <h3 class="cus-purple">Order Status</h3>
+                <% if(sale.isCanceled) { %>
+                    Your order has been canceled by the supplier.
+                <% } else { %>
+                    <div class="uk-grid-small uk-child-width-expand@s uk-text-center" uk-grid>
+                        <div>
+                            <% if(sale.isVerified) { %>
+                            <a href="#" class="uk-icon-button" uk-icon="check"></a> Your purchase is ready!
+                            <% } else { %>
+                            <a href="#" class="uk-icon-button" uk-icon="file-edit"></a> We'll verify your purchase soon...
+                            <% } %>
+                        </div>
+                        <div>
+                            <% if(sale.hasDriver) { %>
+                            <a href="#" class="uk-icon-button" uk-icon="check"></a> We've found a driver for you!
+                            <% } else { %>
+                            <a href="#" class="uk-icon-button" uk-icon="bolt"></a> We're selecting a driver...
+
+                            <% } %>
+                        </div>
+                        <% if(sale.hasDriver) { %>
+                        <div>
+                            <% if(sale.isPickedUp) { %>
+                            <a href="#" class="uk-icon-button" uk-icon="future"></a> The driver is on his way ETA 20-25mins.
+                            Have your ID ready
+
+                            <% } else { %>
+                            <a href="#" class="uk-icon-button" uk-icon="check"></a> Waiting for driver to pick-up your order
+                            <% } %>
+                        </div>
+                        <div>
+                            <% if(sale.isDelivered) { %>
+                            <a href="#" class="uk-icon-button" uk-icon="check"></a> The product has been delivered!
+                            <% } %>
+                        </div>
+                        <% } %>
+                    </div>
+                <% } %>
+
+            </div>
+
+            <% if(sale.hasDriver) { %>
+            <div class="uk-card uk-card-default uk-card-small uk-card-body uk-card-rounded uk-margin-top">
+                <h4 class="uk-card-title"><span class="uk-icon" uk-icon="ratio: 1.2; icon: info"></span> Driver
+                    Information</h4>
+                <p class="uk-margin-small-top">
+                    <span uk-icon="icon:receiver; ratio: 0.8"></span> <a
+                            href="tel:<%= sale.driverID.telephoneNumber %>"><%= sale.driverID.telephoneNumber %></a>
+                </p>
+            </div>
+            <% } %>
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
